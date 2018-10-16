@@ -2881,6 +2881,12 @@
                         }
                     });
                 }
+
+                var srcCats = ["image"];
+                if (srcCats.indexOf(cat) > -1) {
+                    d = "{data}";
+                }
+
                 return tmplt.setTokens({
                     'previewId': id,
                     'caption': caption,
@@ -2902,9 +2908,15 @@
             prevContent = getContent((forcePrevIcon ? 'other' : cat), data, false, 'kv-preview-thumb');
             return prevContent + zoomContent;
         },
-        _addToPreview: function ($preview, content) {
+        _addToPreview: function ($preview, content, data, previewId) {
             var self = this;
-            return self.reversePreviewOrder ? $preview.prepend(content) : $preview.append(content);
+
+            var pv = self.reversePreviewOrder ? $preview.prepend(content) : $preview.append(content);
+            var $pv = $preview.find('#' + previewId + ' [src="{data}"], #' + previewId + ' [data="{data}"]');
+            $pv.attr("src", data).attr("data",data);
+            return;
+            //return self.reversePreviewOrder ? $preview.prepend(content) : $preview.append(content);
+           
         },
         _previewDefault: function (file, previewId, isDisabled) {
             var self = this, $preview = self.$preview;
@@ -2916,7 +2928,7 @@
                 data = $h.objUrl.createObjectURL(file);
             self._clearDefaultPreview();
             content = self._generatePreviewTemplate('other', data, fname, ftype, previewId, isError, size);
-            self._addToPreview($preview, content);
+            self._addToPreview($preview, content, data, previewId);
             self._setThumbAttr(previewId, caption, size);
             if (isDisabled === true && self.isAjaxUpload) {
                 self._setThumbStatus($('#' + previewId), 'Error');
@@ -2938,7 +2950,7 @@
             if (chkTypes || chkMimes) {
                 content = self._generatePreviewTemplate(cat, iData, fname, ftype, previewId, false, fsize);
                 self._clearDefaultPreview();
-                self._addToPreview($preview, content);
+                self._addToPreview($preview, content, iData, previewId);
                 var $img = $preview.find('#' + previewId + ' img');
                 self._validateImageOrientation($img, file, previewId, caption, ftype, fsize, iData);
             } else {
